@@ -9,8 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import dev.rumirinbrah.picky.api.PickyImagePickerSheet
+import dev.rumirinbrah.picky.api.PickyOption
+import dev.rumirinbrah.picky.api.rememberPickyImagePicker
+import dev.rumirinbrah.picky.presentation.PickySheetState
 import dev.rumirinbrah.picky.ui.theme.PickyTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +47,15 @@ fun Greeting(name: String , modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     PickyTheme {
-        Greeting("Android")
+        val state = rememberPickyImagePicker()
+        LaunchedEffect(Unit) {
+            state.launch()
+        }
+
+        PickyImagePickerSheet(
+            pickyState = state,
+            initialSheetState = PickySheetState.HALF_EXPANDED,
+            onResult = {}
+        )
     }
 }
