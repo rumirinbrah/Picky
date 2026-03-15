@@ -2,12 +2,15 @@ package dev.rumirinbrah.picky.api
 
 import android.Manifest
 import android.net.Uri
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -24,14 +27,19 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.MediaManager
+import dev.rumirinbrah.picky.permissions.PermissionDialog
 import dev.rumirinbrah.picky.permissions.PermissionManager
+import dev.rumirinbrah.picky.permissions.openAppSettings
+import dev.rumirinbrah.picky.presentation.AlbumsRoot
 import dev.rumirinbrah.picky.presentation.ObserveAsEvents
 import dev.rumirinbrah.picky.presentation.PickerTabRow
 import dev.rumirinbrah.picky.presentation.PickyBottomSheet
 import dev.rumirinbrah.picky.presentation.PickySheetState
+import dev.rumirinbrah.picky.presentation.RecentImagesPage
 import dev.rumirinbrah.picky.presentation.rememberPickySheetState
 import dev.rumirinbrah.picky.util.UIEvents
 import dev.rumirinbrah.picky.util.checkStoragePermissions
@@ -169,6 +177,60 @@ fun <T>PickyImagePickerSheet(
                     )
                 }
 
+                HorizontalPager(
+                    pagerState ,
+                    modifier = Modifier.fillMaxWidth() ,
+                    userScrollEnabled = state.tabRowVisible
+                ){ page->
+                    when(page){
+                        0->{
+                            RecentImagesPage(
+                                images = state.images ,
+                                loading = state.loading ,
+                                onAction = { action ->
+                                    mediaManager.onAction(action)
+                                } ,
+                                onDismiss = {
+                                    pickyState.dismiss()
+                                    mediaManager.onAction(ImagePickerAction.CancelSelection)
+                                }
+                            )
+                        }
+                        1->{
+                            AlbumsRoot(
+                                state = state ,
+                                onAction = { action ->
+                                    mediaManager.onAction(action)
+                                } ,
+                                onDismiss = {
+                                    pickyState.dismiss()
+                                    mediaManager.onAction(ImagePickerAction.CancelSelection)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            //------- DENIED PERMISSIONS ALERT --------
+            deniedPermsQueue.onEach { permission ->
+                PermissionDialog(
+                    permission = permission ,
+                    isPermanentlyDeclined = !ActivityCompat.shouldShowRequestPermissionRationale(
+                        context as ComponentActivity ,
+                        permission
+                    ) ,
+                    onDismiss = {
+                        permissionManager.onDismiss()
+                    } ,
+                    onOkClick = {
+                        permissionManager.onDismiss()
+                        permissionLauncher.launch(arrayOf(permission))
+                    } ,
+                    onGoToSettings = {
+                        context.openAppSettings()
+                        permissionManager.onDismiss()
+                    }
+                )
             }
         }
     }

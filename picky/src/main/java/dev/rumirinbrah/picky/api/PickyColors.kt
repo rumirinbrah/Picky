@@ -5,13 +5,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
+
 object PickyDefaults {
 
     /**
-     * Can be used for customizing colors of the Recents | Albums Tab.
+     * Creates a [PickyTabColors] instance used to style the **Recents | Albums**
+     * tab row inside the Picky image picker.
      *
-     * @author zyzz
-    */
+     * This allows customization of the container, tab content, selection state,
+     * and indicator colors used by the tab component.
+     *
+     * By default, the colors are derived from the current [MaterialTheme]
+     * so the picker automatically adapts to the host application's theme.
+     *
+     * @param containerColor Background color of the tab row container.
+     * @param contentColor Default color applied to tab content.
+     * @param selectedTabColor Color used for the currently selected tab.
+     * @param unselectedTabColor Color used for the tab that is not selected.
+     * @param tabIndicatorColor Color of the indicator shown beneath the selected tab.
+     *
+     * @return A [PickyTabColors] configuration object used by Picky components.
+     *
+     * Example:
+     * ```
+     * PickyDefaults.tabColors(
+     *     containerColor = Color.Black,
+     *     selectedTabColor = Color.White
+     * )
+     * ```
+     */
     @Composable
     fun tabColors(
         containerColor: Color = MaterialTheme.colorScheme.surfaceContainer ,
