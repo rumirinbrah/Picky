@@ -20,8 +20,9 @@ object PickyDefaults {
      *
      * @param containerColor Background color of the tab row container.
      * @param contentColor Default color applied to tab content.
-     * @param selectedTabColor Color used for the currently selected tab.
-     * @param unselectedTabColor Color used for the tab that is not selected.
+     * @param selectedTabColor Color used for the label of currently selected tab.
+     * @param selectedTabContainerColor Color used for the container of selected tab
+     * @param unselectedTabColor Color used for the label of tab that is not selected.
      * @param tabIndicatorColor Color of the indicator shown beneath the selected tab.
      *
      * @return A [PickyTabColors] configuration object used by Picky components.
@@ -38,14 +39,16 @@ object PickyDefaults {
     fun tabColors(
         containerColor: Color = MaterialTheme.colorScheme.surfaceContainer ,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        selectedTabColor: Color = MaterialTheme.colorScheme.onBackground,
+        selectedTabColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+        selectedTabContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
         unselectedTabColor: Color = MaterialTheme.colorScheme.onBackground.copy(0.5f),
-        tabIndicatorColor: Color = MaterialTheme.colorScheme.primary
+        tabIndicatorColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
     ): PickyTabColors {
         return PickyTabColors(
             containerColor = containerColor ,
             contentColor =  contentColor,
             selectedTabColor = selectedTabColor ,
+            selectedTabContainerColor = selectedTabContainerColor,
             unselectedTabColor = unselectedTabColor ,
             tabIndicatorColor = tabIndicatorColor
         )
@@ -57,6 +60,7 @@ class PickyTabColors(
     val containerColor: Color ,
     val contentColor: Color ,
     val selectedTabColor: Color ,
+    val selectedTabContainerColor: Color,
     val unselectedTabColor: Color ,
     val tabIndicatorColor: Color
 )

@@ -217,6 +217,7 @@ internal fun PickyBottomSheet(
                             }
                         }
                     )
+//                    .background(Color.DarkGray)
                     .padding(contentPadding),
                 verticalArrangement = Arrangement.spacedBy(verticalSpacing)
             ) {

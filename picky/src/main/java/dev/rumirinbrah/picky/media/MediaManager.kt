@@ -5,14 +5,17 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
-import androidx.lifecycle.viewModelScope
+import dev.rumirinbrah.picky.api.PickyOption
+import dev.rumirinbrah.picky.util.MediaManagerEvents
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +28,9 @@ internal class MediaManager(
     private val _state = MutableStateFlow(ImagePickerState())
     val state = _state.asStateFlow()
 
+    private val _events = Channel<MediaManagerEvents>()
+    val events = _events.receiveAsFlow()
+
     private val allRecentImages = mutableListOf<GalleryImage>()
     private var recentImagesLoadingJob: Job? = null
     private var recentsPage = 0
@@ -34,7 +40,7 @@ internal class MediaManager(
 
     private val pageSize = 30
     private var endReached: Boolean = false
-    private var albumEndReached : Boolean = false
+    private var albumEndReached: Boolean = false
 
     init {
         log {
@@ -53,7 +59,7 @@ internal class MediaManager(
                 setAlbum(action.albumName)
             }
             //--------LOAD ALBUM NXT PG-------
-            ImagePickerAction.LoadAlbumImagesNextPage ->{
+            ImagePickerAction.LoadAlbumImagesNextPage -> {
                 loadAlbumImagesNextPage()
             }
 
@@ -69,9 +75,14 @@ internal class MediaManager(
             is ImagePickerAction.TriggerTabRow -> {
                 triggerTabRow(action.visible)
             }
+            //--------PICKY OPT-------
+            is ImagePickerAction.SetPickyOption<*> -> {
+                setPickyOption(action.option)
+            }
+
             //--------SELECT IMG-------
             is ImagePickerAction.SelectImage -> {
-                selectImage(action.image)
+                selectImage(action.image , action.id)
             }
             //--------CANCEL-------
             ImagePickerAction.CancelSelection -> {
@@ -172,7 +183,7 @@ internal class MediaManager(
                 return@launch
             }
             //to ensure it doesnt overshoot
-            val end = (start+pageSize).coerceAtMost(allRecentImages.size)
+            val end = (start + pageSize).coerceAtMost(allRecentImages.size)
             _state.update {
                 it.copy(loading = true)
             }
@@ -237,7 +248,8 @@ internal class MediaManager(
             }
         }
     }
-    private fun setAlbum(albumName : String){
+
+    private fun setAlbum(albumName: String) {
         //here we set the album
         //load all the album images
         //load first page
@@ -251,11 +263,12 @@ internal class MediaManager(
             }
         }
     }
+
     private fun loadAlbumImagesNextPage() {
         if (allSelectedAlbumImages.isEmpty() || albumEndReached) {
             return
         }
-        if(_state.value.loadingAlbumImages){
+        if (_state.value.loadingAlbumImages) {
             return
         }
         log {
@@ -264,18 +277,18 @@ internal class MediaManager(
         scope.launch {
 
             val start = albumImagesPage * pageSize
-            if( start> allSelectedAlbumImages.size){
+            if (start > allSelectedAlbumImages.size) {
                 log {
                     "loadAlbumImages : End reached"
                 }
                 albumEndReached = true
                 return@launch
             }
-            val end = (start+pageSize).coerceAtMost(allSelectedAlbumImages.size)
+            val end = (start + pageSize).coerceAtMost(allSelectedAlbumImages.size)
             _state.update {
                 it.copy(loadingAlbumImages = true)
             }
-            val images = allSelectedAlbumImages.subList(start,end)
+            val images = allSelectedAlbumImages.subList(start , end)
 
             log {
                 "loadAlbumImages : Page $albumImagesPage loaded"
@@ -289,7 +302,8 @@ internal class MediaManager(
 
         }
     }
-    private fun clearAlbumImages(){
+
+    private fun clearAlbumImages() {
         scope.launch {
             log {
                 "clearAlbumImages : Clearing..."
@@ -305,21 +319,79 @@ internal class MediaManager(
         }
     }
 
-    private fun selectImage(imageUri : Uri){
+    private fun selectImage(imageUri: Uri , id: Long) {
         scope.launch {
-            _state.update {
-                it.copy(selectedImage = imageUri)
+            if (_state.value.multiSelect) {
+                selectMultipleImage(imageUri, id)
+            } else {
+                selectSingleImage(imageUri)
             }
         }
     }
 
-    private fun triggerTabRow(visible : Boolean) {
+    private fun selectSingleImage(imageUri: Uri) {
+        log {
+            "Select single image"
+        }
+        scope.launch {
+            _state.update {
+                it.copy(selectedImage = imageUri)
+            }
+            _events.send(MediaManagerEvents.OnImagesSelect)
+        }
+    }
+
+    private fun selectMultipleImage(imageUri: Uri  , id : Long ) {
+        log {
+            "Add to multi-images"
+        }
+        scope.launch {
+            _state.update {
+                if(it.selectedImages.size>it.maxItems){
+                    TODO("Send UI event")
+                }
+                val updated = it.selectedImages.updateList(imageUri,id)
+                it.copy(
+                    selectedImages = updated
+                )
+            }
+        }
+    }
+
+    private fun triggerTabRow(visible: Boolean) {
         _state.update {
             it.copy(tabRowVisible = visible)
         }
     }
 
-    private fun clearData(){
+    private fun <T> setPickyOption(option: PickyOption<T>) {
+        log {
+            "setPickyOption : Option is $option"
+        }
+        scope.launch {
+            when (option) {
+                is PickyOption.PickMultiple -> {
+
+                    _state.update {
+                        it.copy(
+                            multiSelect = true,
+                            maxItems = option.maxItems
+                        )
+                    }
+                }
+
+                PickyOption.PickSingle -> {
+                    _state.update {
+                        it.copy(
+                            multiSelect = false
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun clearData() {
         //onCleared()
         log {
             "Clearing media manager..."
@@ -347,4 +419,14 @@ internal class MediaManager(
         }
     }
 
+}
+
+private fun List<GalleryImage>.updateList(imageUri : Uri , id : Long) : List<GalleryImage>{
+    return if(this.containsId(id)){
+        this.filter {
+            it.id != id
+        }
+    }else{
+        this + GalleryImage(id,imageUri)
+    }
 }

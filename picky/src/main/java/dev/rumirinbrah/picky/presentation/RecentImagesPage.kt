@@ -47,9 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.rumirinbrah.picky.R
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
+import dev.rumirinbrah.picky.media.containsId
 import kotlinx.coroutines.flow.debounce
 
 /**
@@ -60,9 +60,11 @@ import kotlinx.coroutines.flow.debounce
 internal fun RecentImagesPage(
     modifier: Modifier = Modifier ,
     images: List<GalleryImage> ,
+    selectedImages : List<GalleryImage>,
     onAction: (ImagePickerAction) -> Unit ,
     onDismiss: () -> Unit ,
     loading: Boolean = false ,
+    multiSelect : Boolean = false,
     gridCells: Int = 3 ,
     verticalGridPadding: Dp = 2.dp ,
     horizontalGridPadding: Dp = 2.dp ,
@@ -111,32 +113,21 @@ internal fun RecentImagesPage(
                     it.id
                 }
             ) { image ->
-                Box(
+                ImageItem(
                     Modifier
                         .animateItem()
-                        .weight(1f)
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(image.image)
-                            .crossfade(true)
-                            .build() ,
-                        contentDescription = "Image" ,
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .clickable {
-                                onAction(ImagePickerAction.SelectImage(image.image))
-                            } ,
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
+                        .weight(1f),
+                    image,
+                    onClick = {
+                        onAction(ImagePickerAction.SelectImage(it.image , it.id))
+                    },
+                    selected = multiSelect && selectedImages.containsId(image.id)
+                )
             }
             //some space at the bottom
             item {
                 VerticalSpace()
             }
-            val a = Icons.Default.Info
         }
         VerticalSpace(10.dp)
         // Maybe you haven't given us full access to your files yet.

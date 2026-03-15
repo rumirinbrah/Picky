@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.rumirinbrah.picky"
+    namespace = "dev.rumirinbrah.feature_picky"
     compileSdk {
         version = release(36)
     }

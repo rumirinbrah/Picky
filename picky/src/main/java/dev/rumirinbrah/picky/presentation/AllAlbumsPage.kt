@@ -66,7 +66,7 @@ internal fun AlbumsRoot(
     NavHost(
         modifier = modifier,
         navController = navController ,
-        startDestination = "" ,
+        startDestination = "all_albums_screen" ,
         enterTransition = {
             slideInHorizontally(
                 initialOffsetX = {
@@ -135,7 +135,7 @@ internal fun AlbumsRoot(
                 albumName = state.selectedAlbum ,
                 loading = state.loadingAlbumImages,
                 onImageSelect = { uri ->
-                    onAction(ImagePickerAction.SelectImage(uri))
+                    onAction(ImagePickerAction.SelectImage(uri,0))
                 } ,
                 navigateUp = {
                     onAction(ImagePickerAction.ClearAlbumImages)
@@ -185,12 +185,12 @@ internal fun AllAlbumsPage(
  */
 @Composable
 private fun AlbumImagesPage(
+    modifier: Modifier = Modifier ,
     images: List<GalleryImage> ,
     albumName: String? = null ,
     loading : Boolean = false ,
     onImageSelect: (imageUri: Uri) -> Unit ,
     navigateUp: () -> Unit ,
-    modifier: Modifier = Modifier ,
     gridCells: Int = 3 ,
 ) {
     val context = LocalContext.current

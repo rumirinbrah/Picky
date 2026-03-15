@@ -11,6 +11,12 @@ internal data class GalleryImage(
     val albumName : String ="Unknown"
 )
 
+internal fun List<GalleryImage>.containsId(id : Long) : Boolean {
+    return this.any {
+        it.id == id
+    }
+}
+
 internal data class GalleryAlbum(
     val albumName : String,
     val coverImage : GalleryImage
