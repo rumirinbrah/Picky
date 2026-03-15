@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -40,6 +41,7 @@ import dev.rumirinbrah.picky.permissions.PermissionDialog
 import dev.rumirinbrah.picky.permissions.PermissionManager
 import dev.rumirinbrah.picky.permissions.openAppSettings
 import dev.rumirinbrah.picky.presentation.AlbumsRoot
+import dev.rumirinbrah.picky.presentation.MultiSelectActionsCard
 import dev.rumirinbrah.picky.presentation.ObserveAsEvents
 import dev.rumirinbrah.picky.presentation.PickerTabRow
 import dev.rumirinbrah.picky.presentation.PickyBottomSheet
@@ -166,7 +168,18 @@ fun <T> PickyImagePickerSheet(
             pickyState.dismiss()
 //            TODO()
         } ,
-        dismissTopContainer = true
+        dismissTopContainer = true ,
+        bottomActionBar = {
+            if (state.multiSelect && state.selectedImages.isNotEmpty()) {
+                MultiSelectActionsCard(
+                    //                Modifier.align(Alignment.BottomCenter),
+                    numImages = state.selectedImages.size.toString() ,
+                    onDone = {} ,
+                    onClear = {} ,
+                    onDiscard = {}
+                )
+            }
+        }
     ) {
         Box(
             Modifier
@@ -206,6 +219,7 @@ fun <T> PickyImagePickerSheet(
 //                    )
 //                }
 
+
                 HorizontalPager(
                     pagerState ,
                     modifier = Modifier.fillMaxWidth() ,
@@ -242,11 +256,18 @@ fun <T> PickyImagePickerSheet(
                         }
                     }
                 }
-                //------- MULTI-SELECT DETAILS CARD --------
-                AnimatedVisibility(state.multiSelect && state.selectedImages.isNotEmpty()) {
 
-                }
             }
+            //------- MULTI-SELECT DETAILS CARD --------
+//                AnimatedVisibility(state.multiSelect && state.selectedImages.isNotEmpty()) {
+//            MultiSelectActionsCard(
+//                Modifier.align(Alignment.BottomCenter),
+//                numImages = state.selectedImages.size.toString(),
+//                onDone = {},
+//                onClear = {},
+//                onDiscard = {}
+//            )
+//                }
             //------- DENIED PERMISSIONS ALERT --------
             deniedPermsQueue.onEach { permission ->
                 PermissionDialog(
