@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,9 +33,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +42,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.containsId
@@ -66,6 +62,7 @@ internal fun RecentImagesPage(
     loading: Boolean = false ,
     multiSelect : Boolean = false,
     gridCells: Int = 3 ,
+    selectionColors: PickySelectionColors,
     verticalGridPadding: Dp = 2.dp ,
     horizontalGridPadding: Dp = 2.dp ,
 ) {
@@ -121,7 +118,8 @@ internal fun RecentImagesPage(
                     onClick = {
                         onAction(ImagePickerAction.SelectImage(it.image , it.id))
                     },
-                    selected = multiSelect && selectedImages.containsId(image.id)
+                    selected = multiSelect && selectedImages.containsId(image.id),
+                    selectionColors = selectionColors
                 )
             }
             //some space at the bottom

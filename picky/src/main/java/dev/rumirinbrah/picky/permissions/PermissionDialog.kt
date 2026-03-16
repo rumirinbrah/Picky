@@ -78,7 +78,7 @@ internal fun PermissionDialog(
                         ){
                             append(permissionName)
                         }
-                        append(" permission to make your travels a little smoother.")
+                        append(" permission to make your experience a little smoother.")
                     }
                 }
                 ,

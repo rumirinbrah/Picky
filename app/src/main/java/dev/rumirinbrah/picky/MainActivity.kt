@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import dev.rumirinbrah.picky.api.PickyDefaults
 import dev.rumirinbrah.picky.api.PickyImagePickerSheet
 import dev.rumirinbrah.picky.api.PickyOption
 import dev.rumirinbrah.picky.api.rememberPickyImagePicker
@@ -67,7 +69,7 @@ fun TestPicky(
                 onResult = {
                     println("URI is $it")
                 },
-                option = PickyOption.PickMultiple(),
+                option = PickyOption.PickMultiple()
             )
         }
     }

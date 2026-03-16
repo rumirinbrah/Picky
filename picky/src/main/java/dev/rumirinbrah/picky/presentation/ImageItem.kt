@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryImage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -40,8 +42,7 @@ internal fun ImageItem(
     onClick : (GalleryImage)->Unit ,
     enabled : Boolean = true,
     selected : Boolean = false,
-    selectedIndicatorColor : Color = MaterialTheme.colorScheme.onBackground,
-    tickColor : Color = MaterialTheme.colorScheme.background,
+    selectionColors: PickySelectionColors
 ) {
     val context = LocalContext.current
     val scale by animateFloatAsState(
@@ -54,19 +55,28 @@ internal fun ImageItem(
 
     Box(
         modifier
-            .drawWithContent(
-                onDraw = {
-                    drawContent()
-                    if(selected){
-                        drawRect(
-                            selectedIndicatorColor ,
-                            style = Stroke(10f)
-                        )
-                    }
+            .drawBehind{
+                if(selected){
+                    drawRect(
+                        selectionColors.borderIndicatorColor
+                    )
+                }else{
+                    return@drawBehind
                 }
-            )
-//            .animateItem()
-//            .weight(1f)
+            }
+//            .drawWithContent(
+//                onDraw = {
+//                    drawContent()
+//                    if(selected){
+//                        drawRect(
+//                            selectedIndicatorColor ,
+//                            style = Stroke(10f)
+//                        )
+//                    }else{
+//                        return@drawWithContent
+//                    }
+//                }
+//            )
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)
@@ -94,8 +104,8 @@ internal fun ImageItem(
         if(selected){
             TickIndicator(
                 Modifier.align(Alignment.Center),
-                background = selectedIndicatorColor,
-                iconTint = tickColor
+                background = selectionColors.tickIconBackgroundColor,
+                iconTint = selectionColors.tickIconColor
             )
         }
     }

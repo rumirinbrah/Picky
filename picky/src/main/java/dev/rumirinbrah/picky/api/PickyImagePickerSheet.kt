@@ -1,12 +1,10 @@
 package dev.rumirinbrah.picky.api
 
 import android.Manifest
-import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -15,29 +13,31 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.innerShadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.MediaManager
-import dev.rumirinbrah.picky.media.toUriList
 import dev.rumirinbrah.picky.permissions.PermissionDialog
 import dev.rumirinbrah.picky.permissions.PermissionManager
 import dev.rumirinbrah.picky.permissions.openAppSettings
@@ -48,13 +48,12 @@ import dev.rumirinbrah.picky.presentation.PickerTabRow
 import dev.rumirinbrah.picky.presentation.PickyBottomSheet
 import dev.rumirinbrah.picky.presentation.PickySheetState
 import dev.rumirinbrah.picky.presentation.RecentImagesPage
+import dev.rumirinbrah.picky.presentation.VerticalSpace
 import dev.rumirinbrah.picky.presentation.rememberPickySheetState
 import dev.rumirinbrah.picky.util.MediaManagerEvents
 import dev.rumirinbrah.picky.util.UIEvents
 import dev.rumirinbrah.picky.util.checkStoragePermissions
 import kotlinx.coroutines.launch
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @Composable
 fun <T> PickyImagePickerSheet(
@@ -65,6 +64,7 @@ fun <T> PickyImagePickerSheet(
     initialSheetState: PickySheetState = PickySheetState.CLOSED ,
     background: Color = MaterialTheme.colorScheme.surface ,
     tabColors: PickyTabColors = PickyDefaults.tabColors() ,
+    selectionColors: PickySelectionColors = PickyDefaults.selectionColors(),
     sheetShape: Shape = RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
 ) {
     val scope = rememberCoroutineScope()
@@ -138,13 +138,6 @@ fun <T> PickyImagePickerSheet(
         }
     }
 
-    //-------- IMG CALLBACK --------
-//    LaunchedEffect(state.selectedImage) {
-//        state.selectedImage?.let {
-//            TODO("Change this to one time EVENTS!")
-//        }
-//    }
-
     //-------- PERMISSION EVENTS --------
     ObserveAsEvents(permissionEvents) { event ->
         when (event) {
@@ -175,7 +168,16 @@ fun <T> PickyImagePickerSheet(
             .background(
                 background ,
                 sheetShape
-            ) ,
+            )
+            .innerShadow(
+                sheetShape,
+                shadow = Shadow(
+                    radius = 3.dp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.1f),
+                    spread = 1.dp,
+                    offset = DpOffset(x = 0.dp , y= 1.dp)
+                )
+            ),
         state = sheetState ,
         onSheetClosed = {
 //            scope.launch {
@@ -188,6 +190,7 @@ fun <T> PickyImagePickerSheet(
         bottomActionBar = {
             if (state.multiSelect && state.selectedImages.isNotEmpty()) {
                 MultiSelectActionsCard(
+                    Modifier.padding(horizontal = 4.dp),
                     numImages = state.selectedImages.size.toString() ,
                     onDone = {
                         mediaManager.onAction(ImagePickerAction.ConfirmSelection)
@@ -259,7 +262,8 @@ fun <T> PickyImagePickerSheet(
                                     pickyState.dismiss()
                                     mediaManager.onAction(ImagePickerAction.CancelSelection)
                                 } ,
-                                multiSelect = state.multiSelect
+                                multiSelect = state.multiSelect,
+                                selectionColors = selectionColors
                             )
                         }
 
@@ -272,10 +276,14 @@ fun <T> PickyImagePickerSheet(
                                 onDismiss = {
                                     pickyState.dismiss()
                                     mediaManager.onAction(ImagePickerAction.CancelSelection)
-                                }
+                                },
+                                selectionColors = selectionColors
                             )
                         }
                     }
+                }
+                if(state.multiSelect){
+                    VerticalSpace()
                 }
 
             }

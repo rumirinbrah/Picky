@@ -1,12 +1,10 @@
 package dev.rumirinbrah.picky.presentation
 
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,12 +16,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,11 +39,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryAlbum
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.ImagePickerState
 import dev.rumirinbrah.picky.media.containsId
+import kotlinx.coroutines.flow.debounce
 
 /**
  * Composable rep a list of albums and over pics. Has dedicated navigation internally
@@ -53,10 +53,11 @@ import dev.rumirinbrah.picky.media.containsId
  */
 @Composable
 internal fun AlbumsRoot(
+    modifier: Modifier = Modifier,
     state: ImagePickerState ,
     onAction: (ImagePickerAction) -> Unit ,
     onDismiss: () -> Unit ,
-    modifier: Modifier = Modifier
+    selectionColors: PickySelectionColors
 ) {
     val navController = rememberNavController()
 
@@ -105,7 +106,7 @@ internal fun AlbumsRoot(
                 onAction(ImagePickerAction.TriggerTabRow(true))
             }
             AllAlbumsPage(
-                state.albums ,
+                albums = state.albums ,
                 onNavToAlbum = { albumName ->
                     navController.navigate("all_detail_screen/$albumName")
                     onAction(ImagePickerAction.TriggerTabRow(false))
@@ -136,13 +137,11 @@ internal fun AlbumsRoot(
                 selectedImages = state.selectedImages,
                 albumName = state.selectedAlbum ,
                 loading = state.loadingAlbumImages,
-                onImageSelect = { uri ->
-                    onAction(ImagePickerAction.SelectImage(uri,0))
-                } ,
                 multiSelect = state.multiSelect,
                 onAction = {
                     onAction(it)
                 },
+                selectionColors = selectionColors,
                 navigateUp = {
                     onAction(ImagePickerAction.ClearAlbumImages)
                     navController.navigateUp()
@@ -156,9 +155,9 @@ internal fun AlbumsRoot(
 
 @Composable
 internal fun AllAlbumsPage(
+    modifier: Modifier = Modifier ,
     albums: List<GalleryAlbum> ,
     onNavToAlbum: (albumName: String) -> Unit ,
-    modifier: Modifier = Modifier ,
     gridCells: Int = 2 ,
 ) {
 
@@ -198,7 +197,7 @@ private fun AlbumImagesPage(
     albumName: String? = null ,
     loading : Boolean = false ,
     multiSelect : Boolean = false,
-    onImageSelect: (imageUri: Uri) -> Unit ,
+    selectionColors: PickySelectionColors,
     navigateUp: () -> Unit ,
     gridCells: Int = 3 ,
 ) {
@@ -208,19 +207,19 @@ private fun AlbumImagesPage(
     BackHandler {
         navigateUp()
     }
-//    LaunchedEffect(listState) {
-//        snapshotFlow {
-//            listState.layoutInfo
-//        }.debounce(400)
-//            .collect{ layoutInfo->
-//                val total = layoutInfo.totalItemsCount
-//                val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-//
-//                if(total>=5 && lastItem >= total-2){
-//                    //TODO load more
-//                }
-//            }
-//    }
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.layoutInfo
+        }.debounce(400)
+            .collect{ layoutInfo->
+                val total = layoutInfo.totalItemsCount
+                val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+                if(total>=20 && lastItem >= total-3){
+                    onAction(ImagePickerAction.LoadAlbumImagesNextPage)
+                }
+            }
+    }
 
     Column(
         modifier.fillMaxSize()
@@ -244,7 +243,7 @@ private fun AlbumImagesPage(
             }
         }
         LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize() ,
+            modifier = Modifier.fillMaxSize(),
             columns = GridCells.Fixed(gridCells) ,
             verticalArrangement = Arrangement.spacedBy(2.dp) ,
             horizontalArrangement = Arrangement.spacedBy(2.dp) ,
@@ -256,25 +255,6 @@ private fun AlbumImagesPage(
                     it.id
                 }
             ) { image ->
-//                Box(
-//                    Modifier
-//                        .animateItem()
-//                        .weight(1f)
-//                ) {
-//                    AsyncImage(
-//                        model = ImageRequest.Builder(context)
-//                            .data(image.image)
-//                            .crossfade(true)
-//                            .build() ,
-//                        contentDescription = "image" ,
-//                        modifier = Modifier
-//                            .aspectRatio(1f)
-//                            .clickable {
-//                                onImageSelect(image.image)
-//                            },
-//                        contentScale = ContentScale.Crop
-//                    )
-//                }
                 ImageItem(
                     Modifier
                         .animateItem()
@@ -283,7 +263,8 @@ private fun AlbumImagesPage(
                     onClick = {
                         onAction(ImagePickerAction.SelectImage(it.image , it.id))
                     },
-                    selected = multiSelect && selectedImages.containsId(image.id)
+                    selected = multiSelect && selectedImages.containsId(image.id),
+                    selectionColors = selectionColors
                 )
 
             }

@@ -276,9 +276,15 @@ internal class MediaManager(
 
     private fun loadAlbumImagesNextPage() {
         if (allSelectedAlbumImages.isEmpty() || albumEndReached) {
+            log {
+                "loadAlbumImagesNextPage : returning..."
+            }
             return
         }
         if (_state.value.loadingAlbumImages) {
+            log{
+                "loadAlbumImagesNextPage : already loading, returning...."
+            }
             return
         }
         log {
@@ -423,13 +429,14 @@ internal class MediaManager(
             "Clearing media manager..."
         }
         allRecentImages.clear()
-        allSelectedAlbumImages = emptyList()
         recentsPage = 0
-        albumImagesPage = 0
         recentImagesLoadingJob?.cancel()
-
         endReached = false
+
+        allSelectedAlbumImages = emptyList()
+        albumImagesPage = 0
         albumEndReached = false
+
         _state.update {
             ImagePickerState()
         }

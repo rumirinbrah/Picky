@@ -3,6 +3,7 @@ package dev.rumirinbrah.picky.api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 
@@ -24,7 +25,6 @@ object PickyDefaults {
      * @param selectedTabContainerColor Color used for the container of selected tab
      * @param unselectedTabColor Color used for the label of tab that is not selected.
      * @param tabIndicatorColor Color of the indicator shown beneath the selected tab.
-     *
      * @return A [PickyTabColors] configuration object used by Picky components.
      *
      * Example:
@@ -53,6 +53,46 @@ object PickyDefaults {
             tabIndicatorColor = tabIndicatorColor
         )
     }
+
+    /**
+     * Creates a [PickySelectionColors] configuration used to style the visual
+     * indicators of selected images inside the Picky picker.
+     *
+     * This includes the checkmark icon, its background, and the border indicator
+     * drawn around selected images. By default, the colors are derived from the
+     * current [MaterialTheme] so the picker integrates naturally with the host
+     * application's theme.
+     *
+     * @param tickIconColor Color of the selection checkmark icon displayed on
+     * selected images.
+     * @param tickIconBackgroundColor Background color behind the checkmark icon.
+     * (This is drawn as a circular container)
+     * @param borderIndicatorColor Color of the border drawn around selected images.
+     *
+     * @return A [PickySelectionColors] instance used to customize selection UI
+     * elements within the picker.
+     *
+     * Example:
+     * ```
+     * PickyDefaults.selectionColors(
+     *     tickIconColor = Color.White,
+     *     tickIconBackgroundColor = Color.Black,
+     *     borderIndicatorColor = Color.White
+     * )
+     * ```
+     */
+    @Composable
+    fun selectionColors(
+        tickIconColor : Color = MaterialTheme.colorScheme.background,
+        tickIconBackgroundColor : Color = MaterialTheme.colorScheme.onBackground,
+        borderIndicatorColor : Color = MaterialTheme.colorScheme.onBackground
+    ) : PickySelectionColors{
+        return PickySelectionColors(
+            tickIconColor = tickIconColor,
+            tickIconBackgroundColor = tickIconBackgroundColor,
+            borderIndicatorColor = borderIndicatorColor
+        )
+    }
 }
 
 @Stable
@@ -64,6 +104,11 @@ class PickyTabColors(
     val unselectedTabColor: Color ,
     val tabIndicatorColor: Color
 )
-
+@Stable
+class PickySelectionColors(
+    val tickIconColor : Color,
+    val tickIconBackgroundColor : Color,
+    val borderIndicatorColor : Color
+)
 
 
