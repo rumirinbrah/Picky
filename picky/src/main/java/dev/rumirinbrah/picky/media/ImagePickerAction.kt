@@ -16,5 +16,15 @@ internal sealed class ImagePickerAction {
     data class LoadAlbumImages(val albumName : String) : ImagePickerAction()
     data object LoadAlbumImagesNextPage : ImagePickerAction()
 
+    /**
+     * Clear all selected images in mutli select
+     * @author zyzz
+    */
+    data object ClearSelection : ImagePickerAction()
+    /**
+     * Confirm multi select
+     * @author zyzz
+    */
+    data object ConfirmSelection : ImagePickerAction()
     data object ClearAlbumImages : ImagePickerAction()
 }

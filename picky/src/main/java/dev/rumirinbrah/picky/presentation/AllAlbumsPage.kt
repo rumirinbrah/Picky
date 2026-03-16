@@ -45,6 +45,7 @@ import dev.rumirinbrah.picky.media.GalleryAlbum
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.ImagePickerState
+import dev.rumirinbrah.picky.media.containsId
 
 /**
  * Composable rep a list of albums and over pics. Has dedicated navigation internally
@@ -132,11 +133,16 @@ internal fun AlbumsRoot(
 
             AlbumImagesPage(
                 images = state.albumImages ,
+                selectedImages = state.selectedImages,
                 albumName = state.selectedAlbum ,
                 loading = state.loadingAlbumImages,
                 onImageSelect = { uri ->
                     onAction(ImagePickerAction.SelectImage(uri,0))
                 } ,
+                multiSelect = state.multiSelect,
+                onAction = {
+                    onAction(it)
+                },
                 navigateUp = {
                     onAction(ImagePickerAction.ClearAlbumImages)
                     navController.navigateUp()
@@ -187,8 +193,11 @@ internal fun AllAlbumsPage(
 private fun AlbumImagesPage(
     modifier: Modifier = Modifier ,
     images: List<GalleryImage> ,
+    selectedImages : List<GalleryImage>,
+    onAction: (ImagePickerAction) -> Unit,
     albumName: String? = null ,
     loading : Boolean = false ,
+    multiSelect : Boolean = false,
     onImageSelect: (imageUri: Uri) -> Unit ,
     navigateUp: () -> Unit ,
     gridCells: Int = 3 ,
@@ -247,25 +256,35 @@ private fun AlbumImagesPage(
                     it.id
                 }
             ) { image ->
-                Box(
+//                Box(
+//                    Modifier
+//                        .animateItem()
+//                        .weight(1f)
+//                ) {
+//                    AsyncImage(
+//                        model = ImageRequest.Builder(context)
+//                            .data(image.image)
+//                            .crossfade(true)
+//                            .build() ,
+//                        contentDescription = "image" ,
+//                        modifier = Modifier
+//                            .aspectRatio(1f)
+//                            .clickable {
+//                                onImageSelect(image.image)
+//                            },
+//                        contentScale = ContentScale.Crop
+//                    )
+//                }
+                ImageItem(
                     Modifier
                         .animateItem()
-                        .weight(1f)
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(image.image)
-                            .crossfade(true)
-                            .build() ,
-                        contentDescription = "image" ,
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .clickable {
-                                onImageSelect(image.image)
-                            },
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                        .weight(1f),
+                    image = image,
+                    onClick = {
+                        onAction(ImagePickerAction.SelectImage(it.image , it.id))
+                    },
+                    selected = multiSelect && selectedImages.containsId(image.id)
+                )
 
             }
             item {

@@ -12,12 +12,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class MediaManager(
@@ -83,6 +86,13 @@ internal class MediaManager(
             //--------SELECT IMG-------
             is ImagePickerAction.SelectImage -> {
                 selectImage(action.image , action.id)
+            }
+
+            ImagePickerAction.ConfirmSelection ->{
+                confirmImagesSelection()
+            }
+            ImagePickerAction.ClearSelection -> {
+                clearSelectedImages()
             }
             //--------CANCEL-------
             ImagePickerAction.CancelSelection -> {
@@ -331,13 +341,13 @@ internal class MediaManager(
 
     private fun selectSingleImage(imageUri: Uri) {
         log {
-            "Select single image"
+            "selectSingleImage : Select single image $imageUri"
         }
         scope.launch {
             _state.update {
                 it.copy(selectedImage = imageUri)
             }
-            _events.send(MediaManagerEvents.OnImagesSelect)
+            _events.send(MediaManagerEvents.OnImageSelect(imageUri))
         }
     }
 
@@ -388,6 +398,22 @@ internal class MediaManager(
                     }
                 }
             }
+        }
+    }
+
+    //--------MULTI-SELECT-------
+    private fun clearSelectedImages(){
+        scope.launch {
+            _state.update {
+                it.copy(selectedImages = emptyList())
+            }
+        }
+    }
+    private fun confirmImagesSelection(){
+        scope.launch {
+            val values = _state.value
+            val data = values.selectedImages.toUriList()
+            _events.send(MediaManagerEvents.OnImagesSelect(data))
         }
     }
 

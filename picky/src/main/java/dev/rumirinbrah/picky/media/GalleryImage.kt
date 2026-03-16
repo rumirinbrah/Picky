@@ -16,6 +16,11 @@ internal fun List<GalleryImage>.containsId(id : Long) : Boolean {
         it.id == id
     }
 }
+internal fun List<GalleryImage>.toUriList() : List<Uri>{
+    return map {
+        it.image
+    }
+}
 
 internal data class GalleryAlbum(
     val albumName : String,

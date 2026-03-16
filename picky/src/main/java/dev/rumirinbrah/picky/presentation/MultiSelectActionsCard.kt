@@ -22,6 +22,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+
+/**
+ * Bottom action bar for multi select options.
+ *
+ * Shows options such as Clear, Discard & Confirm
+ *
+ * @author zyzz
+*/
 @Composable
 fun MultiSelectActionsCard(
     modifier: Modifier = Modifier,
@@ -70,7 +78,7 @@ fun MultiSelectActionsCard(
         ) {
             Button(
                 onClick = {
-
+                    onDiscard()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = containerColor,
@@ -83,7 +91,7 @@ fun MultiSelectActionsCard(
             }
             Button(
                 onClick = {
-
+                    onDone()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = buttonColor,

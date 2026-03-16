@@ -37,6 +37,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.MediaManager
+import dev.rumirinbrah.picky.media.toUriList
 import dev.rumirinbrah.picky.permissions.PermissionDialog
 import dev.rumirinbrah.picky.permissions.PermissionManager
 import dev.rumirinbrah.picky.permissions.openAppSettings
@@ -48,6 +49,7 @@ import dev.rumirinbrah.picky.presentation.PickyBottomSheet
 import dev.rumirinbrah.picky.presentation.PickySheetState
 import dev.rumirinbrah.picky.presentation.RecentImagesPage
 import dev.rumirinbrah.picky.presentation.rememberPickySheetState
+import dev.rumirinbrah.picky.util.MediaManagerEvents
 import dev.rumirinbrah.picky.util.UIEvents
 import dev.rumirinbrah.picky.util.checkStoragePermissions
 import kotlinx.coroutines.launch
@@ -75,6 +77,7 @@ fun <T> PickyImagePickerSheet(
         MediaManager(scope , context)
     }
     val state by mediaManager.state.collectAsStateWithLifecycle()
+    val mediaManagerEvents = mediaManager.events
 
     val sheetState = rememberPickySheetState(initialSheetState)
 
@@ -136,11 +139,11 @@ fun <T> PickyImagePickerSheet(
     }
 
     //-------- IMG CALLBACK --------
-    LaunchedEffect(state.selectedImage) {
-        state.selectedImage?.let {
-            TODO("Change this to one time EVENTS!")
-        }
-    }
+//    LaunchedEffect(state.selectedImage) {
+//        state.selectedImage?.let {
+//            TODO("Change this to one time EVENTS!")
+//        }
+//    }
 
     //-------- PERMISSION EVENTS --------
     ObserveAsEvents(permissionEvents) { event ->
@@ -150,6 +153,19 @@ fun <T> PickyImagePickerSheet(
             }
 
             else -> Unit
+        }
+    }
+    //-------- MEDIA M EVENTS --------
+    ObserveAsEvents(mediaManagerEvents) {event->
+        when(event){
+            is MediaManagerEvents.OnImagesSelect->{
+                onResult(event.uri as T)
+                pickyState.dismiss()
+            }
+            is MediaManagerEvents.OnImageSelect->{
+                onResult(event.uri as T)
+                pickyState.dismiss()
+            }
         }
     }
 
@@ -172,11 +188,16 @@ fun <T> PickyImagePickerSheet(
         bottomActionBar = {
             if (state.multiSelect && state.selectedImages.isNotEmpty()) {
                 MultiSelectActionsCard(
-                    //                Modifier.align(Alignment.BottomCenter),
                     numImages = state.selectedImages.size.toString() ,
-                    onDone = {} ,
-                    onClear = {} ,
-                    onDiscard = {}
+                    onDone = {
+                        mediaManager.onAction(ImagePickerAction.ConfirmSelection)
+                    } ,
+                    onClear = {
+                        mediaManager.onAction(ImagePickerAction.ClearSelection)
+                    } ,
+                    onDiscard = {
+                        pickyState.dismiss()
+                    }
                 )
             }
         }
