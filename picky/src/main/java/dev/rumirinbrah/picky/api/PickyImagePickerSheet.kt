@@ -1,6 +1,7 @@
 package dev.rumirinbrah.picky.api
 
 import android.Manifest
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,14 +10,22 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -24,24 +33,30 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.MediaManager
 import dev.rumirinbrah.picky.permissions.PermissionDialog
 import dev.rumirinbrah.picky.permissions.PermissionManager
 import dev.rumirinbrah.picky.permissions.openAppSettings
 import dev.rumirinbrah.picky.presentation.AlbumsRoot
+import dev.rumirinbrah.picky.presentation.ImagePreview
 import dev.rumirinbrah.picky.presentation.MultiSelectActionsCard
 import dev.rumirinbrah.picky.presentation.ObserveAsEvents
 import dev.rumirinbrah.picky.presentation.PickerTabRow
@@ -64,7 +79,8 @@ fun <T> PickyImagePickerSheet(
     initialSheetState: PickySheetState = PickySheetState.CLOSED ,
     background: Color = MaterialTheme.colorScheme.surface ,
     tabColors: PickyTabColors = PickyDefaults.tabColors() ,
-    selectionColors: PickySelectionColors = PickyDefaults.selectionColors(),
+    selectionColors: PickySelectionColors = PickyDefaults.selectionColors() ,
+    gridConfig: PickyGridConfig = PickyGridConfig() ,
     sheetShape: Shape = RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
 ) {
     val scope = rememberCoroutineScope()
@@ -149,15 +165,20 @@ fun <T> PickyImagePickerSheet(
         }
     }
     //-------- MEDIA M EVENTS --------
-    ObserveAsEvents(mediaManagerEvents) {event->
-        when(event){
-            is MediaManagerEvents.OnImagesSelect->{
+    ObserveAsEvents(mediaManagerEvents) { event ->
+        when (event) {
+            is MediaManagerEvents.OnImagesSelect -> {
                 onResult(event.uri as T)
                 pickyState.dismiss()
             }
-            is MediaManagerEvents.OnImageSelect->{
+
+            is MediaManagerEvents.OnImageSelect -> {
                 onResult(event.uri as T)
                 pickyState.dismiss()
+            }
+
+            is MediaManagerEvents.Error ->{
+                Toast.makeText(context , event.errorMsg , Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -170,27 +191,23 @@ fun <T> PickyImagePickerSheet(
                 sheetShape
             )
             .innerShadow(
-                sheetShape,
+                sheetShape ,
                 shadow = Shadow(
-                    radius = 3.dp,
-                    color = MaterialTheme.colorScheme.onBackground.copy(0.1f),
-                    spread = 1.dp,
-                    offset = DpOffset(x = 0.dp , y= 1.dp)
+                    radius = 3.dp ,
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.1f) ,
+                    spread = 1.dp ,
+                    offset = DpOffset(x = 0.dp , y = 1.dp)
                 )
-            ),
+            ) ,
         state = sheetState ,
         onSheetClosed = {
-//            scope.launch {
-//                sheetState.dismiss()
-//            }
             pickyState.dismiss()
-//            TODO()
         } ,
         dismissTopContainer = true ,
         bottomActionBar = {
             if (state.multiSelect && state.selectedImages.isNotEmpty()) {
                 MultiSelectActionsCard(
-                    Modifier.padding(horizontal = 4.dp),
+                    Modifier.padding(horizontal = 4.dp) ,
                     numImages = state.selectedImages.size.toString() ,
                     onDone = {
                         mediaManager.onAction(ImagePickerAction.ConfirmSelection)
@@ -200,6 +217,18 @@ fun <T> PickyImagePickerSheet(
                     } ,
                     onDiscard = {
                         pickyState.dismiss()
+                    }
+                )
+            }
+        } ,
+        containerOverlay = {
+            //------- PREVIEW --------
+            state.previewImage?.let {
+
+                ImagePreview(
+                    image = it,
+                    onAction = {
+                        mediaManager.onAction(it)
                     }
                 )
             }
@@ -229,20 +258,6 @@ fun <T> PickyImagePickerSheet(
                         colors = tabColors
                     )
                 }
-//                if(
-//                    state.tabRowVisible
-//                ){
-//                    PickerTabRow(
-//                        currentTab = pagerState.currentPage ,
-//                        onTabChange = { newTab ->
-//                            scope.launch {
-//                                pagerState.animateScrollToPage(newTab)
-//                            }
-//                        } ,
-//                        colors = tabColors
-//                    )
-//                }
-
 
                 HorizontalPager(
                     pagerState ,
@@ -262,8 +277,9 @@ fun <T> PickyImagePickerSheet(
                                     pickyState.dismiss()
                                     mediaManager.onAction(ImagePickerAction.CancelSelection)
                                 } ,
-                                multiSelect = state.multiSelect,
-                                selectionColors = selectionColors
+                                multiSelect = state.multiSelect ,
+                                selectionColors = selectionColors ,
+                                gridConfig = gridConfig
                             )
                         }
 
@@ -276,27 +292,19 @@ fun <T> PickyImagePickerSheet(
                                 onDismiss = {
                                     pickyState.dismiss()
                                     mediaManager.onAction(ImagePickerAction.CancelSelection)
-                                },
-                                selectionColors = selectionColors
+                                } ,
+                                selectionColors = selectionColors ,
+                                gridConfig = gridConfig
                             )
                         }
                     }
                 }
-                if(state.multiSelect){
+                if (state.multiSelect) {
                     VerticalSpace()
                 }
 
             }
-            //------- MULTI-SELECT DETAILS CARD --------
-//                AnimatedVisibility(state.multiSelect && state.selectedImages.isNotEmpty()) {
-//            MultiSelectActionsCard(
-//                Modifier.align(Alignment.BottomCenter),
-//                numImages = state.selectedImages.size.toString(),
-//                onDone = {},
-//                onClear = {},
-//                onDiscard = {}
-//            )
-//                }
+
             //------- DENIED PERMISSIONS ALERT --------
             deniedPermsQueue.onEach { permission ->
                 PermissionDialog(

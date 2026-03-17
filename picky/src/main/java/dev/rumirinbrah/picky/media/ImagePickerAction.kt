@@ -10,6 +10,8 @@ internal sealed class ImagePickerAction {
     data object Load : ImagePickerAction()
     data object LoadRecentsNextPage : ImagePickerAction()
 
+    data class PreviewImage(val uri : Uri) : ImagePickerAction()
+    data object ClearPreviewImage : ImagePickerAction()
     data class SelectImage(val image : Uri , val id : Long) : ImagePickerAction()
     data object CancelSelection : ImagePickerAction()
 

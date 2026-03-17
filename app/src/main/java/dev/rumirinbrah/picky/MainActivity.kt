@@ -16,13 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import dev.rumirinbrah.picky.api.PickyDefaults
 import dev.rumirinbrah.picky.api.PickyImagePickerSheet
 import dev.rumirinbrah.picky.api.PickyOption
 import dev.rumirinbrah.picky.api.rememberPickyImagePicker
-import dev.rumirinbrah.picky.presentation.PickySheetState
 import dev.rumirinbrah.picky.ui.theme.PickyTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +29,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PickyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TestPicky(Modifier.padding(innerPadding))
+                    PickySample(Modifier.padding(innerPadding))
                 }
             }
         }
@@ -40,7 +37,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TestPicky(
+fun PickySample(
     modifier: Modifier = Modifier
 ) {
     val pickyState = rememberPickyImagePicker()
@@ -53,7 +50,6 @@ fun TestPicky(
         ) {
             Button(
                 onClick = {
-                    println("launch")
                     pickyState.launch()
                 },
                 enabled = true,
@@ -75,13 +71,6 @@ fun TestPicky(
     }
 }
 
-@Composable
-fun Greeting(name: String , modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!" ,
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable

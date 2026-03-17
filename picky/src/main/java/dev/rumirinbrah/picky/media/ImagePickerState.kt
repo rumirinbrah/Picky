@@ -11,6 +11,7 @@ internal data class ImagePickerState(
     val albums : List<GalleryAlbum> = emptyList() ,
     val albumImages : List<GalleryImage> = emptyList() ,
     val selectedImage : Uri? = null ,
+    val previewImage : Uri? = null,
     val selectedImages : List<GalleryImage> = emptyList() ,
     val selectedAlbum : String? = null ,
     val tabRowVisible : Boolean = true ,

@@ -87,6 +87,13 @@ internal class MediaManager(
             is ImagePickerAction.SelectImage -> {
                 selectImage(action.image , action.id)
             }
+            //--------PREV-------
+            is ImagePickerAction.PreviewImage ->{
+                previewImage(action.uri)
+            }
+            ImagePickerAction.ClearPreviewImage ->{
+                clearPreviewImage()
+            }
 
             ImagePickerAction.ConfirmSelection ->{
                 confirmImagesSelection()
@@ -309,10 +316,11 @@ internal class MediaManager(
             log {
                 "loadAlbumImages : Page $albumImagesPage loaded"
             }
+            albumImagesPage += 1
             _state.update {
                 it.copy(
                     loadingAlbumImages = false ,
-                    albumImages = images
+                    albumImages = it.albumImages + images
                 )
             }
 
@@ -325,6 +333,8 @@ internal class MediaManager(
                 "clearAlbumImages : Clearing..."
             }
             allSelectedAlbumImages = emptyList()
+            albumImagesPage = 0
+            albumEndReached = false
             _state.update {
                 it.copy(
                     loadingAlbumImages = false ,
@@ -341,6 +351,20 @@ internal class MediaManager(
                 selectMultipleImage(imageUri, id)
             } else {
                 selectSingleImage(imageUri)
+            }
+        }
+    }
+    private fun previewImage(uri: Uri){
+        scope.launch {
+            _state.update {
+                it.copy(previewImage = uri)
+            }
+        }
+    }
+    private fun clearPreviewImage(){
+        scope.launch {
+            _state.update {
+                it.copy(previewImage = null)
             }
         }
     }
@@ -363,10 +387,15 @@ internal class MediaManager(
         }
         scope.launch {
             _state.update {
-                if(it.selectedImages.size>it.maxItems){
-                    TODO("Send UI event")
-                }
-                val updated = it.selectedImages.updateList(imageUri,id)
+                val updated = it.selectedImages.updateList(
+                    imageUri ,
+                    id ,
+                    it.maxItems ,
+                    onFull = {
+                        _events.send(MediaManagerEvents.Error("You can only select upto ${it.maxItems} images"))
+                        return@launch
+                    }
+                )
                 it.copy(
                     selectedImages = updated
                 )
@@ -454,12 +483,20 @@ internal class MediaManager(
 
 }
 
-private fun List<GalleryImage>.updateList(imageUri : Uri , id : Long) : List<GalleryImage>{
+private inline fun List<GalleryImage>.updateList(
+    imageUri: Uri ,
+    id: Long,
+    maxItems : Int,
+    onFull : ()->Unit
+) : List<GalleryImage>{
     return if(this.containsId(id)){
         this.filter {
             it.id != id
         }
     }else{
+        if(this.size>=maxItems){
+            onFull()
+        }
         this + GalleryImage(id,imageUri)
     }
 }

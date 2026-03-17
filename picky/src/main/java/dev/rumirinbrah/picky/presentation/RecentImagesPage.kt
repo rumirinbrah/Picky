@@ -5,16 +5,12 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -39,13 +35,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.rumirinbrah.picky.api.PickyGridConfig
 import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
-import dev.rumirinbrah.picky.media.containsId
 import kotlinx.coroutines.flow.debounce
 
 /**
@@ -61,10 +56,8 @@ internal fun RecentImagesPage(
     onDismiss: () -> Unit ,
     loading: Boolean = false ,
     multiSelect : Boolean = false,
-    gridCells: Int = 3 ,
     selectionColors: PickySelectionColors,
-    verticalGridPadding: Dp = 2.dp ,
-    horizontalGridPadding: Dp = 2.dp ,
+    gridConfig: PickyGridConfig
 ) {
 
     val context = LocalContext.current
@@ -76,57 +69,69 @@ internal fun RecentImagesPage(
         onDismiss()
     }
 
-    LaunchedEffect(listState) {
-        snapshotFlow {
-            listState.layoutInfo
-        }.debounce(400)
-            .collect { layoutInfo ->
-
-                val total = layoutInfo.totalItemsCount
-                val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-                //load more if we're near the END
-                if (total >= 5 && lastItem >= total - 2) {
-                    onAction(ImagePickerAction.LoadRecentsNextPage)
-                }
-            }
-    }
+//    LaunchedEffect(listState) {
+//        snapshotFlow {
+//            listState.layoutInfo
+//        }.debounce(400)
+//            .collect { layoutInfo ->
+//
+//                val total = layoutInfo.totalItemsCount
+//                val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+//                //load more if we're near the END
+//                if (total >= 5 && lastItem >= total - 2) {
+//                    onAction(ImagePickerAction.LoadRecentsNextPage)
+//                }
+//            }
+//    }
 
     Column(
         modifier.fillMaxSize()
     ) {
         VerticalSpace(10.dp)
 
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxWidth()
-                .weight(1f),
-            columns = GridCells.Fixed(gridCells) ,
-            state = listState ,
-            verticalArrangement = Arrangement.spacedBy(verticalGridPadding) ,
-            horizontalArrangement = Arrangement.spacedBy(horizontalGridPadding) ,
-        ) {
-            items(
-                images ,
-                key = {
-                    it.id
-                }
-            ) { image ->
-                ImageItem(
-                    Modifier
-                        .animateItem()
-                        .weight(1f),
-                    image,
-                    onClick = {
-                        onAction(ImagePickerAction.SelectImage(it.image , it.id))
-                    },
-                    selected = multiSelect && selectedImages.containsId(image.id),
-                    selectionColors = selectionColors
-                )
-            }
-            //some space at the bottom
-            item {
-                VerticalSpace()
-            }
-        }
+        ImagesGrid(
+            Modifier,
+            images = images,
+            selectedImages = selectedImages,
+            onAction = {
+                onAction(it)
+            },
+            gridConfig = gridConfig,
+            multiSelect = multiSelect,
+            selectionColors = selectionColors
+        )
+
+//        LazyVerticalGrid(
+//            modifier = Modifier.fillMaxWidth()
+//                .weight(1f),
+//            columns = GridCells.Fixed(gridCells) ,
+//            state = listState ,
+//            verticalArrangement = Arrangement.spacedBy(verticalGridPadding) ,
+//            horizontalArrangement = Arrangement.spacedBy(horizontalGridPadding) ,
+//        ) {
+//            items(
+//                images ,
+//                key = {
+//                    it.id
+//                }
+//            ) { image ->
+//                ImageItem(
+//                    Modifier
+//                        .animateItem()
+//                        .weight(1f),
+//                    image,
+//                    onClick = {
+//                        onAction(ImagePickerAction.SelectImage(it.image , it.id))
+//                    },
+//                    selected = multiSelect && selectedImages.containsId(image.id),
+//                    selectionColors = selectionColors
+//                )
+//            }
+//            //some space at the bottom
+//            item {
+//                VerticalSpace()
+//            }
+//        }
         VerticalSpace(10.dp)
         // Maybe you haven't given us full access to your files yet.
         //Please

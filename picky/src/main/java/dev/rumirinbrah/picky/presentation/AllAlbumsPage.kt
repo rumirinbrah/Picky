@@ -39,12 +39,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.rumirinbrah.picky.api.PickyGridConfig
 import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryAlbum
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.ImagePickerState
-import dev.rumirinbrah.picky.media.containsId
 import kotlinx.coroutines.flow.debounce
 
 /**
@@ -53,11 +53,12 @@ import kotlinx.coroutines.flow.debounce
  */
 @Composable
 internal fun AlbumsRoot(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier ,
     state: ImagePickerState ,
     onAction: (ImagePickerAction) -> Unit ,
     onDismiss: () -> Unit ,
-    selectionColors: PickySelectionColors
+    selectionColors: PickySelectionColors,
+    gridConfig: PickyGridConfig
 ) {
     val navController = rememberNavController()
 
@@ -66,7 +67,7 @@ internal fun AlbumsRoot(
     }
 
     NavHost(
-        modifier = modifier,
+        modifier = modifier ,
         navController = navController ,
         startDestination = "all_albums_screen" ,
         enterTransition = {
@@ -115,15 +116,15 @@ internal fun AlbumsRoot(
 
         }
         composable(
-            route = "all_detail_screen/{name}",
+            route = "all_detail_screen/{name}" ,
             arguments = listOf(
                 navArgument(
                     name = "name"
-                ){
+                ) {
                     NavType.StringType
                 }
             )
-        ) {backstack->
+        ) { backstack ->
             val albumName = backstack.arguments?.getString("name") ?: run {
                 throw Exception("An unknown error occurred")
             }
@@ -134,18 +135,19 @@ internal fun AlbumsRoot(
 
             AlbumImagesPage(
                 images = state.albumImages ,
-                selectedImages = state.selectedImages,
+                selectedImages = state.selectedImages ,
                 albumName = state.selectedAlbum ,
-                loading = state.loadingAlbumImages,
-                multiSelect = state.multiSelect,
+                loading = state.loadingAlbumImages ,
+                multiSelect = state.multiSelect ,
                 onAction = {
                     onAction(it)
-                },
-                selectionColors = selectionColors,
+                } ,
+                selectionColors = selectionColors ,
                 navigateUp = {
                     onAction(ImagePickerAction.ClearAlbumImages)
                     navController.navigateUp()
-                }
+                },
+                gridConfig = gridConfig
             )
 
         }
@@ -192,14 +194,14 @@ internal fun AllAlbumsPage(
 private fun AlbumImagesPage(
     modifier: Modifier = Modifier ,
     images: List<GalleryImage> ,
-    selectedImages : List<GalleryImage>,
-    onAction: (ImagePickerAction) -> Unit,
+    selectedImages: List<GalleryImage> ,
+    onAction: (ImagePickerAction) -> Unit ,
     albumName: String? = null ,
-    loading : Boolean = false ,
-    multiSelect : Boolean = false,
-    selectionColors: PickySelectionColors,
+    loading: Boolean = false ,
+    multiSelect: Boolean = false ,
+    selectionColors: PickySelectionColors ,
+    gridConfig : PickyGridConfig ,
     navigateUp: () -> Unit ,
-    gridCells: Int = 3 ,
 ) {
     val context = LocalContext.current
     val listState = rememberLazyGridState()
@@ -207,19 +209,19 @@ private fun AlbumImagesPage(
     BackHandler {
         navigateUp()
     }
-    LaunchedEffect(listState) {
-        snapshotFlow {
-            listState.layoutInfo
-        }.debounce(400)
-            .collect{ layoutInfo->
-                val total = layoutInfo.totalItemsCount
-                val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-
-                if(total>=20 && lastItem >= total-3){
-                    onAction(ImagePickerAction.LoadAlbumImagesNextPage)
-                }
-            }
-    }
+//    LaunchedEffect(listState) {
+//        snapshotFlow {
+//            listState.layoutInfo
+//        }.debounce(400)
+//            .collect { layoutInfo ->
+//                val total = layoutInfo.totalItemsCount
+//                val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+//
+//                if (total >= 20 && lastItem >= total - 3) {
+//                    onAction(ImagePickerAction.LoadAlbumImagesNextPage)
+//                }
+//            }
+//    }
 
     Column(
         modifier.fillMaxSize()
@@ -234,16 +236,18 @@ private fun AlbumImagesPage(
             title = albumName ?: "Unknown"
         )
         VerticalSpace(10.dp)
-        when{
-            loading->{
+        when {
+            loading -> {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(25.dp)
+                    modifier = Modifier
+                        .size(25.dp)
                         .align(Alignment.CenterHorizontally)
                 )
             }
         }
+        /*
         LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize() ,
             columns = GridCells.Fixed(gridCells) ,
             verticalArrangement = Arrangement.spacedBy(2.dp) ,
             horizontalArrangement = Arrangement.spacedBy(2.dp) ,
@@ -258,12 +262,12 @@ private fun AlbumImagesPage(
                 ImageItem(
                     Modifier
                         .animateItem()
-                        .weight(1f),
-                    image = image,
+                        .weight(1f) ,
+                    image = image ,
                     onClick = {
                         onAction(ImagePickerAction.SelectImage(it.image , it.id))
-                    },
-                    selected = multiSelect && selectedImages.containsId(image.id),
+                    } ,
+                    selected = multiSelect && selectedImages.containsId(image.id) ,
                     selectionColors = selectionColors
                 )
 
@@ -272,6 +276,18 @@ private fun AlbumImagesPage(
                 VerticalSpace()
             }
         }
+        */
+        ImagesGrid(
+            Modifier,
+            images = images,
+            selectedImages = selectedImages,
+            onAction = {
+                onAction(it)
+            },
+            gridConfig = gridConfig,
+            multiSelect = multiSelect,
+            selectionColors = selectionColors
+        )
 
     }
 }
@@ -302,7 +318,7 @@ private fun AlbumItem(
                 .aspectRatio(1f)
                 .clickable {
                     onClick(album.albumName)
-                },
+                } ,
             contentScale = ContentScale.Crop
         )
         Text(

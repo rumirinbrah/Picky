@@ -45,7 +45,7 @@ internal class PermissionManager(
     }
 
     //TODO(Remove in prod)
-    private val loggingEnabled = true
+    private val loggingEnabled = false
 
     private fun log(msg: () -> String) {
         if (loggingEnabled) {

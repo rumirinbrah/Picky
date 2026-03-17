@@ -136,6 +136,7 @@ internal fun PickyBottomSheet(
     sheetShape: Shape = RoundedCornerShape(0.dp),
     dismissTopContainer : Boolean = false,
     bottomActionBar : @Composable (() -> Unit) = {},
+    containerOverlay : @Composable (() -> Unit) = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -235,6 +236,11 @@ internal fun PickyBottomSheet(
             Modifier.align(Alignment.BottomCenter)
         ){
             bottomActionBar()
+        }
+        Box(
+            Modifier.align(Alignment.Center)
+        ){
+            containerOverlay()
         }
     }
 
