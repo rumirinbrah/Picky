@@ -107,7 +107,7 @@ internal fun rememberPickySheetState(
  * @param verticalPadding Padding around the handle
  */
 @Composable
-fun BottomSheetHandle(
+internal fun BottomSheetHandle(
     modifier: Modifier = Modifier ,
     sheetState: PickySheetState = PickySheetState.HALF_EXPANDED ,
     color: Color = MaterialTheme.colorScheme.onBackground.copy(0.7f) ,

@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import dev.rumirinbrah.picky.api.PickyImagePickerSheet
 import dev.rumirinbrah.picky.api.PickyOption
 import dev.rumirinbrah.picky.api.rememberPickyImagePicker
+import dev.rumirinbrah.picky.presentation.PickySheetState
 import dev.rumirinbrah.picky.ui.theme.PickyTheme
 
 class MainActivity : ComponentActivity() {
@@ -65,7 +66,8 @@ fun PickySample(
                 onResult = {
                     println("URI is $it")
                 },
-                option = PickyOption.PickMultiple()
+                option = PickyOption.PickMultiple(),
+//                initialSheetState = PickySheetState.EXPANDED
             )
         }
     }

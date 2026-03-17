@@ -59,7 +59,8 @@ internal fun ImagePreview(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close preview"
+                    contentDescription = "Close preview",
+                    tint = MaterialTheme.colorScheme.background
                 )
             }
             VerticalSpace()

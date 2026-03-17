@@ -74,7 +74,7 @@ internal fun PickerTabRow(
  * Represents a tab in the tab row
  */
 @Composable
-fun CustomTab(
+internal fun CustomTab(
     modifier: Modifier = Modifier ,
     title: String ,
     selected: Boolean = false ,

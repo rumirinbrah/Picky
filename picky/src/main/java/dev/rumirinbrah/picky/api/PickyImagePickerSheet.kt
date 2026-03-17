@@ -10,22 +10,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -33,23 +25,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.innerShadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.MediaManager
 import dev.rumirinbrah.picky.permissions.PermissionDialog
@@ -331,24 +316,20 @@ fun <T> PickyImagePickerSheet(
 
 }
 
-//sealed interface PickyOption<T> {
-//    data object PickSingle : PickyOption<Uri>
-//    data class PickMultiple(val maxItems: Int = 20) : PickyOption<List<Uri>>
+
+//
+//@Preview
+//@Composable
+//private fun ImagePickerPrev() {
+//    Box(Modifier.fillMaxSize()) {
+//        PickyImagePickerSheet(
+//            pickyState = rememberPickyImagePicker() ,
+//            onResult = {
+//
+//            } ,
+//            option = PickyOption.PickMultiple()
+//        )
+//    }
 //}
-
-
-@Preview
-@Composable
-private fun ImagePickerPrev() {
-    Box(Modifier.fillMaxSize()) {
-        PickyImagePickerSheet(
-            pickyState = rememberPickyImagePicker() ,
-            onResult = {
-
-            } ,
-            option = PickyOption.PickMultiple()
-        )
-    }
-}
 
 
