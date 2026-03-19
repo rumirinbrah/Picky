@@ -61,13 +61,12 @@ fun PickySample(
         }
         if(pickyState.pickerVisible){
             PickyImagePickerSheet(
-                Modifier.fillMaxSize(),
+                Modifier,
                 pickyState = pickyState,
                 onResult = {
                     println("URI is $it")
                 },
                 option = PickyOption.PickMultiple(),
-//                initialSheetState = PickySheetState.EXPANDED
             )
         }
     }
