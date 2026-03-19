@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    id("maven-publish")
 }
 
 android {
@@ -32,6 +33,11 @@ android {
     buildFeatures {
         compose = true
     }
+    publishing{
+        singleVariant("release"){
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -52,4 +58,16 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+afterEvaluate {
+    publishing{
+        publications{
+            create<MavenPublication>("release"){
+                groupId = "com.github.rumirinbrah"
+                artifactId = "picky"
+
+                from(components["release"])
+            }
+        }
+    }
 }
