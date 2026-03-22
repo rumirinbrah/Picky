@@ -56,6 +56,86 @@ import dev.rumirinbrah.picky.util.UIEvents
 import dev.rumirinbrah.picky.util.checkStoragePermissions
 import kotlinx.coroutines.launch
 
+/**
+ * A composable bottom sheet image picker that allows users to select images
+ * from their device using a customizable grid and selection behavior.
+ *
+ * This is the main entry point for the Picky image picker. It supports both
+ * single and multi-image selection through [PickyOption] and delivers results
+ * via the [onResult] callback.
+ *
+ * The picker handles media querying, permissions, selection state, and UI rendering internally,
+ * while allowing the host application to control state and appearance.
+ *
+ * @param modifier Modifier applied to the picker sheet container.
+ * @param pickyState State holder for the picker. This should be remembered
+ * and hoisted by the caller to retain picker state across recompositions.
+ * @param onResult Callback invoked when the user completes a selection.
+ * The type of result depends on the provided [option]:
+ * - [PickyOption.PickSingle] → Uri
+ * - [PickyOption.PickMultiple] → [List]<[Uri]>
+ * @param option Defines the selection mode and behavior of the picker.
+ * Determines the type of data returned in [onResult].
+ * @param initialSheetState Initial visibility state of the picker sheet.
+ * @param background Background color of the picker sheet.
+ * @param tabColors Configuration for styling the "Recents | Albums" tab row.
+ * @param selectionColors Configuration for styling selection indicators such
+ * as borders and checkmarks.
+ * @param gridConfig Configuration for the image grid layout including spacing
+ * and number of columns.
+ * @param sheetShape Shape of the picker sheet container.
+ *
+ * Example:
+ * ```
+ * PickyImagePickerSheet(
+ *     pickyState = rememberPickyState(),
+ *     option = PickyOption.PickSingle,
+ *     onResult = { uri ->
+ *         // handle selected image
+ *     }
+ * )
+ * ```
+ *
+ * For multi-select:
+ * ```
+ * PickyImagePickerSheet(
+ *     pickyState = rememberPickyState(),
+ *     option = PickyOption.PickMultiple(maxItems = 5),
+ *     onResult = { uris ->
+ *         // handle selected images
+ *     }
+ * )
+ * ```
+ */
+
+@Composable
+fun <T> PickyImagePickerSheet(
+    modifier: Modifier = Modifier ,
+    pickyState: PickyState ,
+    onResult: (result: T) -> Unit ,
+    option: PickyOption<T> ,
+    initialSheetState: PickySheetState = PickySheetState.CLOSED ,
+    background: Color = MaterialTheme.colorScheme.surface ,
+    tabColors: PickyTabColors = PickyDefaults.tabColors() ,
+    selectionColors: PickySelectionColors = PickyDefaults.selectionColors() ,
+    gridConfig: PickyGridConfig = PickyGridConfig() ,
+    sheetShape: Shape = RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
+) {
+    if(pickyState.pickerVisible){
+        PickyImagePickerSheetChild(
+            modifier,
+            pickyState,
+            onResult,
+            option,
+            initialSheetState,
+            background,
+            tabColors,
+            selectionColors,
+            gridConfig,
+            sheetShape
+        )
+    }
+}
 
 /**
  * A composable bottom sheet image picker that allows users to select images
@@ -108,9 +188,9 @@ import kotlinx.coroutines.launch
  * )
  * ```
  */
-/*
+
 @Composable
-fun <T> PickyImagePickerSheet(
+private fun <T> PickyImagePickerSheetChild(
     modifier: Modifier = Modifier ,
     pickyState: PickyState ,
     onResult: (result: T) -> Unit ,
@@ -371,7 +451,7 @@ fun <T> PickyImagePickerSheet(
 }
 
 
- */
+
 
 //
 //@Preview

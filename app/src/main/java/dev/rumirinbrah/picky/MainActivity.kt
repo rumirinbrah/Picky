@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import dev.rumirinbrah.picky.api.PickyImagePickerSheet
 //import dev.rumirinbrah.picky.api.PickyImagePickerSheet
 import dev.rumirinbrah.picky.api.PickyOption
 import dev.rumirinbrah.picky.api.rememberPickyImagePicker
@@ -45,30 +46,30 @@ fun PickySample(
 
     Box(
         modifier.fillMaxSize()
-    ){
+    ) {
         Column(
             Modifier.fillMaxWidth()
         ) {
             Button(
                 onClick = {
                     pickyState.launch()
-                },
-                enabled = true,
+                } ,
+                enabled = true ,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text("Launch Picky")
             }
         }
-        if(pickyState.pickerVisible){
-//            PickyImagePickerSheet(
-//                Modifier,
-//                pickyState = pickyState,
-//                onResult = {
-//                    println("URI is $it")
-//                },
-//                option = PickyOption.PickMultiple(),
-//            )
-        }
+
+        PickyImagePickerSheet(
+            Modifier ,
+            pickyState = pickyState ,
+            onResult = {
+                println("URI is $it")
+            } ,
+            option = PickyOption.PickMultiple() ,
+        )
+
     }
 }
 
