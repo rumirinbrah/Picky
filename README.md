@@ -2,6 +2,9 @@
 
 A modern, Jetpack Compose image picker that gives you **persistent URI access** — no more crashes when accessing images later.
 
+[![](https://www.jitpack.io/v/rumirinbrah/Picky.svg)](https://www.jitpack.io/#rumirinbrah/Picky)
+
+
 ## Usage/Set-up
 ### 1. Setup Gradle
 ### Gradle (kotlin)
@@ -111,6 +114,20 @@ val sheetShape: Shape = RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
 
 Tab colors can be used to customize the **Recents | Album** tab of Picky.
 
+Use it through sheet
+```kotlin
+    PickyImagePickerSheet(
+        pickyState = picky,
+        onResult = {uri->
+            println("URI is $uri")
+        },
+        option = PickyOption.PickSingle,
+        tabColors = PickyDefaults.tabColors(
+            containerColor = Color.White
+        )
+    )
+```
+
 Class attributes
 ```kotlin
 /**
@@ -144,6 +161,11 @@ class PickyTabColors(
     val tabIndicatorColor: Color
 )
 ```
+    
+### 4. Selection Colors 🖌️
+
+Used to configure the selected items in multi-select mode.
+
 Use it through sheet
 ```kotlin
     PickyImagePickerSheet(
@@ -152,15 +174,11 @@ Use it through sheet
             println("URI is $uri")
         },
         option = PickyOption.PickSingle,
-        tabColors = PickyDefaults.tabColors(
-            containerColor = Color.White
+        selectionColors = PickyDefaults.selectionColors(
+            tickIconColor = Color.Black
         )
     )
 ```
-    
-### 4. Selection Colors 🖌️
-
-Used to configure the selected items in multi-select mode.
 
 Class  attributes
 ```kotlin
@@ -189,19 +207,6 @@ class PickySelectionColors(
     val tickIconBackgroundColor : Color,
     val borderIndicatorColor : Color
 )
-```
-Use it through sheet
-```kotlin
-    PickyImagePickerSheet(
-        pickyState = picky,
-        onResult = {uri->
-            println("URI is $uri")
-        },
-        option = PickyOption.PickSingle,
-        selectionColors = PickyDefaults.selectionColors(
-            tickIconColor = Color.Black
-        )
-    )
 ```
 
 ### 5. Sheet background color 🌄
