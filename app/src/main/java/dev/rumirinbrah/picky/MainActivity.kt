@@ -60,14 +60,14 @@ fun PickySample(
             }
         }
         if(pickyState.pickerVisible){
-            PickyImagePickerSheet(
-                Modifier,
-                pickyState = pickyState,
-                onResult = {
-                    println("URI is $it")
-                },
-                option = PickyOption.PickMultiple(),
-            )
+//            PickyImagePickerSheet(
+//                Modifier,
+//                pickyState = pickyState,
+//                onResult = {
+//                    println("URI is $it")
+//                },
+//                option = PickyOption.PickMultiple(),
+//            )
         }
     }
 }
