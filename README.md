@@ -4,6 +4,8 @@ A modern, Jetpack Compose image picker that gives you **persistent URI access** 
 
 [![](https://www.jitpack.io/v/rumirinbrah/Picky.svg)](https://www.jitpack.io/#rumirinbrah/Picky)
 
+![Picky banner](https://github.com/user-attachments/assets/b737496d-e03a-4ab3-8482-6706d7944b00)
+***
 
 ## Usage/Set-up
 ### 1. Setup Gradle
