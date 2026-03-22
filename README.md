@@ -242,3 +242,18 @@ Customize through the background parameter of PickyImagePickerSheet
 
 - 🚀 **Simple and intuitive API**  
   Minimal setup required — open the picker and get results with just a few lines of code.
+
+## 🤝 Contributing
+
+Contributions are welcome! 🎉  
+If you'd like to improve **Picky**, feel free to contribute in any of the following ways:
+
+- 🐛 Report bugs & errors
+- 💡 Suggest new features or improvements
+- 🔧 Submit pull requests
+
+
+Made with 💖
+
+Happy coding fellas~
+
