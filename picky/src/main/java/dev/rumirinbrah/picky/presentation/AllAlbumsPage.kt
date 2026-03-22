@@ -14,14 +14,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +36,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.rumirinbrah.feature_picky.R
 import dev.rumirinbrah.picky.api.PickyGridConfig
 import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryAlbum
 import dev.rumirinbrah.picky.media.GalleryImage
 import dev.rumirinbrah.picky.media.ImagePickerAction
 import dev.rumirinbrah.picky.media.ImagePickerState
-import kotlinx.coroutines.flow.debounce
 
 /**
  * Composable rep a list of albums and over pics. Has dedicated navigation internally
@@ -228,7 +225,7 @@ private fun AlbumImagesPage(
     ) {
         VerticalSpace(10.dp)
         ActionButtonHeader(
-            actionIcon = Icons.AutoMirrored.Filled.ArrowBack ,
+            actionIcon = R.drawable.arrow_back ,
             onAction = {
                 navigateUp()
             } ,

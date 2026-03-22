@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 internal fun ActionButtonHeader(
-    actionIcon: ImageVector ,
+    @DrawableRes actionIcon: Int ,
     actionDescription: String? = null ,
     title : String? ,
-    fontSize : TextUnit = 20.sp,
-    fontWeight : FontWeight = FontWeight.Bold,
-    textColor : Color = MaterialTheme.colorScheme.onBackground.copy(0.8f),
-    itemsSpacing : Dp = 16.dp,
+    fontSize : TextUnit = 20.sp ,
+    fontWeight : FontWeight = FontWeight.Bold ,
+    textColor : Color = MaterialTheme.colorScheme.onBackground.copy(0.8f) ,
+    itemsSpacing : Dp = 16.dp ,
     onAction: () -> Unit ,
     modifier: Modifier = Modifier
 ) {
@@ -44,7 +44,7 @@ internal fun ActionButtonHeader(
             modifier = Modifier
         ) {
             Icon(
-                imageVector = actionIcon ,
+                painter = painterResource(actionIcon) ,
                 contentDescription = actionDescription ,
                 modifier = Modifier.size(30.dp)
             )

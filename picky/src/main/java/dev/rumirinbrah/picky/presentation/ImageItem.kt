@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,9 +20,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.rumirinbrah.feature_picky.R
 import dev.rumirinbrah.picky.api.PickySelectionColors
 import dev.rumirinbrah.picky.media.GalleryImage
 
@@ -119,7 +119,7 @@ private fun TickIndicator(
             .padding(4.dp)
     ){
         Icon(
-            imageVector = Icons.Default.Check,
+            painter = painterResource(R.drawable.check) ,
             contentDescription = "selected",
             modifier = Modifier.size(20.dp),
             tint = iconTint
